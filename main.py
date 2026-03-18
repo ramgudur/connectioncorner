@@ -9,8 +9,7 @@ TARGET_HOST      = "8.8.8.8"
 PING_INTERVAL    = 1.0        # seconds between pings
 HISTORY_SIZE     = 30
 WIN_W            = 140
-WIN_H_FULL       = 65
-WIN_H_COMPACT    = 44
+WIN_H            = 42
 WIN_X            = 1860   # right edge of window in screen pixels
 WIN_Y            = 53     # top edge of window in screen pixels
 
@@ -24,8 +23,7 @@ COLOR_BAD        = "#f38ba8"
 COLOR_DIM        = "#45475a"
 COLOR_TEXT       = "#cdd6f4"
 
-SPARK_H_FULL     = 36
-SPARK_H_COMPACT  = 16
+SPARK_H          = 16
 
 
 class PingWorker:
@@ -84,7 +82,7 @@ class Sparkline:
         self._canvas  = canvas
         self._history = collections.deque([None] * HISTORY_SIZE, maxlen=HISTORY_SIZE)
         self._w = WIN_W
-        self._h = SPARK_H_FULL
+        self._h = SPARK_H
 
     def push(self, value):
         self._history.append(value)
@@ -121,7 +119,7 @@ class Sparkline:
     def _scale(self, max_val: int):
         pts  = []
         step = self._w / (HISTORY_SIZE - 1)
-        pad  = 3
+        pad  = 5
         for i, val in enumerate(self._history):
             x = i * step
             if val is None:
@@ -160,12 +158,12 @@ class OverlayApp:
         root = self.root
         root.overrideredirect(True)
         root.wm_attributes("-topmost", True)
-        root.wm_attributes("-alpha", 0.30)
+        root.wm_attributes("-transparentcolor", COLOR_BG)
         root.configure(bg=COLOR_BG)
 
         x = WIN_X - WIN_W
         y = WIN_Y
-        root.geometry(f"{WIN_W}x{WIN_H_FULL}+{x}+{y}")
+        root.geometry(f"{WIN_W}x{WIN_H}+{x}+{y}")
 
     def _build_widgets(self):
         self.frame = tk.Frame(self.root, bg=COLOR_BG)
@@ -177,18 +175,18 @@ class OverlayApp:
             font=("Consolas", 11, "bold"),
             fg=COLOR_DIM,
             bg=COLOR_BG,
-            anchor="center",
+            anchor="e",
         )
-        self.ping_label.pack(fill=tk.X, padx=6, pady=(5, 2))
+        self.ping_label.pack(fill=tk.X, padx=6, pady=(2, 0))
 
         self.canvas = tk.Canvas(
             self.frame,
             width=WIN_W,
-            height=SPARK_H_FULL,
+            height=SPARK_H,
             bg=COLOR_BG,
             highlightthickness=0,
         )
-        self.canvas.pack(fill=tk.X)
+        self.canvas.pack(fill=tk.BOTH, expand=True)
 
         self.sparkline = Sparkline(self.canvas)
 
@@ -240,20 +238,6 @@ class OverlayApp:
 
         self.sparkline.push(latency)
         self.sparkline.redraw()
-
-        compact = (status == "online" and latency is not None and latency <= PING_GOOD)
-        self._resize(compact)
-
-    def _resize(self, compact: bool):
-        spark_h = SPARK_H_COMPACT if compact else SPARK_H_FULL
-        win_h   = WIN_H_COMPACT   if compact else WIN_H_FULL
-        if self.canvas.winfo_height() == spark_h:
-            return
-        self.canvas.config(height=spark_h)
-        self.sparkline._h = spark_h
-        x = WIN_X - WIN_W
-        y = WIN_Y
-        self.root.geometry(f"{WIN_W}x{win_h}+{x}+{y}")
 
     @staticmethod
     def _color(latency, status):
