@@ -6,12 +6,14 @@ import re
 import collections
 
 TARGET_HOST      = "8.8.8.8"
-PING_INTERVAL    = 1.0        # seconds between pings
+PING_INTERVAL    = 1.0        # Ping interval
 HISTORY_SIZE     = 30
+
+#Hardcoded Window Size
 WIN_W            = 140
 WIN_H            = 42
-WIN_X            = 1860   # right edge of window in screen pixels
-WIN_Y            = 53     # top edge of window in screen pixels
+
+MARGIN           = 20
 
 PING_GOOD        = 80
 PING_WARN        = 200
@@ -161,8 +163,8 @@ class OverlayApp:
         root.wm_attributes("-transparentcolor", COLOR_BG)
         root.configure(bg=COLOR_BG)
 
-        x = WIN_X - WIN_W
-        y = WIN_Y
+        x = root.winfo_screenwidth() - WIN_W - MARGIN
+        y = MARGIN
         root.geometry(f"{WIN_W}x{WIN_H}+{x}+{y}")
 
     def _build_widgets(self):
