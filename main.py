@@ -13,7 +13,9 @@ HISTORY_SIZE     = 30
 WIN_W            = 140
 WIN_H            = 42
 
-MARGIN           = 20
+#Hardcoded Margins
+TOP_MARGIN       = 53
+SIDE_MARGIN      = 60
 
 PING_GOOD        = 80
 PING_WARN        = 200
@@ -163,8 +165,8 @@ class OverlayApp:
         root.wm_attributes("-transparentcolor", COLOR_BG)
         root.configure(bg=COLOR_BG)
 
-        x = root.winfo_screenwidth() - WIN_W - MARGIN
-        y = MARGIN
+        x = root.winfo_screenwidth() - WIN_W - SIDE_MARGIN
+        y = TOP_MARGIN
         root.geometry(f"{WIN_W}x{WIN_H}+{x}+{y}")
 
     def _build_widgets(self):
